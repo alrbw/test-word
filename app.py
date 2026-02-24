@@ -5,7 +5,7 @@ import io
 import math
 import os
 
-# Cấu hình trang và Ép giao diện Light Theme
+# Cấu hình giao diện Light Theme
 st.set_page_config(page_title="Word Name Generate", layout="centered")
 
 st.markdown("""
@@ -13,6 +13,14 @@ st.markdown("""
     .stApp { background-color: #FFFFFF; color: #222222; }
     [data-testid="stSidebar"] { background-color: #F8F9FB; border-right: 1px solid #E6E9EF; }
     h1, h2, h3, p { color: #222222 !important; }
+    /* Tùy chỉnh nút bấm cho đẹp hơn */
+    .stButton>button {
+        width: 100%;
+        background-color: #FF69B4;
+        color: white;
+        border-radius: 5px;
+        border: none;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -26,14 +34,12 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     usable_size = size_px - (2 * margin)
     cell_size = usable_size / grid_size
     
-    # --- XỬ LÝ FONT CHỮ ---
-    # Ưu tiên file font bạn đã upload lên GitHub (ARLRDBD.TTF)
+    # Khớp chính xác với tên file bạn đã upload lên GitHub
     font_path = "ARLRDBD.TTF" 
     try:
         if os.path.exists(font_path):
             font = ImageFont.truetype(font_path, int(cell_size * 0.65))
         else:
-            # Nếu không tìm thấy file, dùng font hệ thống
             font = ImageFont.load_default()
     except:
         font = ImageFont.load_default()
@@ -45,7 +51,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
         for i in range(len(word_obj.text)):
             highlighted_cells.add((r + i * d_row, c + i * d_col))
 
-    # LAYER 1: CHỮ RANDOM (Dưới cùng)
+    # LAYER 1: CHỮ RANDOM
     for r_idx, row in enumerate(grid):
         for c_idx, char in enumerate(row):
             if (r_idx, c_idx) not in highlighted_cells:
@@ -53,7 +59,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
                 y = margin + (r_idx * cell_size) + (cell_size / 2)
                 draw.text((x, y), char, fill=base_text_color, font=font, anchor="mm")
 
-    # LAYER 2: VIỀN CAPSULE (Nằm trên chữ random)
+    # LAYER 2: VIỀN CAPSULE
     for word_obj in puzzle_obj.placed_words:
         r1, c1 = word_obj.start_row, word_obj.start_column
         d_row, d_col = word_obj.direction.value
@@ -80,7 +86,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
         draw.ellipse([x1-inner_rad, y1-inner_rad, x1+inner_rad, y1+inner_rad], fill=(255,255,255,0))
         draw.ellipse([x2-inner_rad, y2-inner_rad, x2+inner_rad, y2+inner_rad], fill=(255,255,255,0))
 
-    # LAYER 3: CHỮ TRONG TÊN (Trên cùng)
+    # LAYER 3: CHỮ TRONG TÊN
     for r_idx, row in enumerate(grid):
         for c_idx, char in enumerate(row):
             if (r_idx, c_idx) in highlighted_cells:
@@ -92,18 +98,23 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     img.save(buf, format="PNG", dpi=(300, 300))
     return buf.getvalue()
 
+# --- Giao diện chính ---
 st.title("Word Name Generate")
 
+# Tạo form để kiểm soát việc load lại trang
 with st.sidebar:
-    c_h = st.color_picker("Highlight Color", "#FF69B4")
-    c_b = st.color_picker("Base Text Color", "#222222")
-    txt = st.text_area("Names", "")
+    st.header("Cấu hình")
+    with st.form("my_form"):
+        c_h = st.color_picker("Highlight Color", "#FF69B4")
+        c_b = st.color_picker("Base Text Color", "#222222")
+        txt = st.text_area("Names (comma separated)", help="Nhập tên rồi ấn Generate để xem kết quả")
+        submit_button = st.form_submit_button(label="Generate Design")
 
-if txt:
+# Chỉ chạy logic khi người dùng ấn nút Generate
+if submit_button and txt:
     names = [n.strip().upper() for n in txt.split(",") if n.strip()]
     if names:
         total_chars = sum(len(n) for n in names)
-        # Giảm mật độ xuống một chút để Grid to hơn, tránh việc capsule bị chồng chéo
         density_size = math.ceil(math.sqrt(total_chars * 1.5))
         final_grid_size = max(density_size, max(len(n) for n in names))
         
@@ -113,7 +124,10 @@ if txt:
             st.image(img_bytes, use_container_width=True)
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
         except:
+            # Tự động nới rộng grid nếu quá chật
             puzzle = WordSearch(",".join(names), size=final_grid_size + 2)
             img_bytes = create_layered_design(puzzle, c_h, c_b)
             st.image(img_bytes, use_container_width=True)
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
+elif not txt:
+    st.info("Vui lòng nhập danh sách tên ở thanh bên trái và nhấn 'Generate Design'.")
