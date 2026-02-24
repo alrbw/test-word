@@ -5,61 +5,61 @@ import io
 import math
 import os
 
-# Cấu hình trang và ép giao diện Light Theme toàn diện
+# 1. Cấu hình trang và Ép giao diện Light Theme toàn diện
 st.set_page_config(page_title="Word Name Generate", layout="centered")
 
 st.markdown("""
     <style>
-    /* 1. Nền tổng thể và thanh bên */
+    /* Nền ứng dụng */
     .stApp {
-        background-color: #FFFFFF;
-        color: #222222;
+        background-color: #FFFFFF !important;
+        color: #222222 !important;
     }
+    
+    /* Thanh bên sidebar */
     [data-testid="stSidebar"] {
-        background-color: #F8F9FB;
-        border-right: 1px solid #E6E9EF;
+        background-color: #F8F9FB !important;
+        border-right: 1px solid #E6E9EF !important;
     }
 
-    /* 2. Ép màu nút bấm (Button) - Sửa lỗi nút màu đen */
-    div.stButton > button {
+    /* ÉP MÀU NÚT BẤM GENERATE (Trắng chữ đen) */
+    button[kind="secondaryFormSubmit"], button[kind="secondary"] {
         background-color: #FFFFFF !important;
         color: #222222 !important;
         border: 1px solid #DCE0E5 !important;
         border-radius: 8px !important;
-        transition: all 0.2s ease;
+        padding: 0.5rem 1rem !important;
+        height: auto !important;
+        width: 100% !important;
     }
-    div.stButton > button:hover {
+    
+    /* Khi trỏ chuột vào nút Generate */
+    button[kind="secondaryFormSubmit"]:hover, button[kind="secondary"]:hover {
         border-color: #FF69B4 !important;
         color: #FF69B4 !important;
         background-color: #FFF5F9 !important;
     }
 
-    /* 3. Ép màu nút Download */
-    div.stDownloadButton > button {
+    /* ÉP MÀU NÚT DOWNLOAD (Màu hồng) */
+    button[kind="primary"], .stDownloadButton > button {
         background-color: #FF69B4 !important;
-        color: white !important;
+        color: #FFFFFF !important;
         border: none !important;
         border-radius: 8px !important;
         font-weight: bold !important;
     }
-    div.stDownloadButton > button:hover {
-        background-color: #FF1493 !important;
-        box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3) !important;
+
+    /* Màu chữ tiêu đề và nhãn */
+    h1, h2, h3, p, label, .stMarkdown {
+        color: #222222 !important;
     }
 
-    /* 4. Chỉnh ô nhập liệu (Text Area) và nhãn chữ */
+    /* Ô nhập liệu */
     .stTextArea textarea {
         background-color: #FFFFFF !important;
         color: #222222 !important;
         border: 1px solid #DCE0E5 !important;
     }
-    label, p, h1, h2, h3 {
-        color: #222222 !important;
-    }
-
-    /* 5. Ẩn menu và footer không cần thiết để giao diện sạch hơn */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -73,7 +73,6 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     usable_size = size_px - (2 * margin)
     cell_size = usable_size / grid_size
     
-    # Khớp chính xác với tên file bạn đã upload lên GitHub
     font_path = "ARLRDBD.TTF" 
     try:
         if os.path.exists(font_path):
@@ -137,19 +136,16 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     img.save(buf, format="PNG", dpi=(300, 300))
     return buf.getvalue()
 
-# --- Giao diện chính ---
 st.title("Word Name Generate")
 
-# Tạo form để kiểm soát việc load lại trang
 with st.sidebar:
     st.header("Cấu hình")
-    with st.form("my_form"):
+    with st.form("settings_form"):
         c_h = st.color_picker("Highlight Color", "#FF69B4")
         c_b = st.color_picker("Base Text Color", "#222222")
-        txt = st.text_area("Names (comma separated)", help="Nhập tên rồi ấn Generate để xem kết quả")
-        submit_button = st.form_submit_button(label="Generate Design")
+        txt = st.text_area("Names (comma separated)", value="")
+        submit_button = st.form_submit_button("Generate Design")
 
-# Chỉ chạy logic khi người dùng ấn nút Generate
 if submit_button and txt:
     names = [n.strip().upper() for n in txt.split(",") if n.strip()]
     if names:
@@ -163,11 +159,9 @@ if submit_button and txt:
             st.image(img_bytes, use_container_width=True)
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
         except:
-            # Tự động nới rộng grid nếu quá chật
             puzzle = WordSearch(",".join(names), size=final_grid_size + 2)
             img_bytes = create_layered_design(puzzle, c_h, c_b)
             st.image(img_bytes, use_container_width=True)
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
 elif not txt:
-    st.info("Vui lòng nhập danh sách tên ở thanh bên trái và nhấn 'Generate Design'.")
-
+    st.info("Vui lòng nhập tên và nhấn 'Generate Design'.")
