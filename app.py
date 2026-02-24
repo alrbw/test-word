@@ -5,22 +5,61 @@ import io
 import math
 import os
 
-# Cấu hình giao diện Light Theme
+# Cấu hình trang và ép giao diện Light Theme toàn diện
 st.set_page_config(page_title="Word Name Generate", layout="centered")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #FFFFFF; color: #222222; }
-    [data-testid="stSidebar"] { background-color: #F8F9FB; border-right: 1px solid #E6E9EF; }
-    h1, h2, h3, p { color: #222222 !important; }
-    /* Tùy chỉnh nút bấm cho đẹp hơn */
-    .stButton>button {
-        width: 100%;
-        background-color: #FF69B4;
-        color: white;
-        border-radius: 5px;
-        border: none;
+    /* 1. Nền tổng thể và thanh bên */
+    .stApp {
+        background-color: #FFFFFF;
+        color: #222222;
     }
+    [data-testid="stSidebar"] {
+        background-color: #F8F9FB;
+        border-right: 1px solid #E6E9EF;
+    }
+
+    /* 2. Ép màu nút bấm (Button) - Sửa lỗi nút màu đen */
+    div.stButton > button {
+        background-color: #FFFFFF !important;
+        color: #222222 !important;
+        border: 1px solid #DCE0E5 !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease;
+    }
+    div.stButton > button:hover {
+        border-color: #FF69B4 !important;
+        color: #FF69B4 !important;
+        background-color: #FFF5F9 !important;
+    }
+
+    /* 3. Ép màu nút Download */
+    div.stDownloadButton > button {
+        background-color: #FF69B4 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+    }
+    div.stDownloadButton > button:hover {
+        background-color: #FF1493 !important;
+        box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3) !important;
+    }
+
+    /* 4. Chỉnh ô nhập liệu (Text Area) và nhãn chữ */
+    .stTextArea textarea {
+        background-color: #FFFFFF !important;
+        color: #222222 !important;
+        border: 1px solid #DCE0E5 !important;
+    }
+    label, p, h1, h2, h3 {
+        color: #222222 !important;
+    }
+
+    /* 5. Ẩn menu và footer không cần thiết để giao diện sạch hơn */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -131,3 +170,4 @@ if submit_button and txt:
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
 elif not txt:
     st.info("Vui lòng nhập danh sách tên ở thanh bên trái và nhấn 'Generate Design'.")
+
