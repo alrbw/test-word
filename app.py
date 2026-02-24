@@ -139,7 +139,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
 st.title("Word Name Generate")
 
 with st.sidebar:
-    st.header("Cấu hình")
+    st.header("Settings")
     with st.form("settings_form"):
         c_h = st.color_picker("Highlight Color", "#FF69B4")
         c_b = st.color_picker("Base Text Color", "#222222")
@@ -165,3 +165,4 @@ if submit_button and txt:
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
 elif not txt:
     st.info("Vui lòng nhập tên và nhấn 'Generate Design'.")
+
