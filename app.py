@@ -4,10 +4,35 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import math
 
+# 1. Cấu hình trang và Ép giao diện Light Theme bằng CSS
 st.set_page_config(page_title="Word Name Generate", layout="centered")
 
+st.markdown("""
+    <style>
+    /* Ép nền chính màu trắng */
+    .stApp {
+        background-color: #FFFFFF;
+        color: #222222;
+    }
+    /* Ép màu sidebar (thanh bên) màu xám nhạt */
+    [data-testid="stSidebar"] {
+        background-color: #F8F9FB;
+        border-right: 1px solid #E6E9EF;
+    }
+    /* Chỉnh màu chữ các tiêu đề */
+    h1, h2, h3, p {
+        color: #222222 !important;
+    }
+    /* Chỉnh màu cho các ô input */
+    .stTextArea textarea {
+        background-color: #FFFFFF !important;
+        color: #222222 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000):
-    # RGBA cho nen trong suot
+    # RGBA cho nền trong suốt
     img = Image.new('RGBA', (size_px, size_px), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     
@@ -23,13 +48,14 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     except:
         font = ImageFont.load_default()
 
-    # Xac dinh tap hop toa do cac chu cai thuoc ve ten
     highlighted_cells = set()
     for word_obj in puzzle_obj.placed_words:
         r, c = word_obj.start_row, word_obj.start_column
         d_row, d_col = word_obj.direction.value
         for i in range(len(word_obj.text)):
             highlighted_cells.add((r + i * d_row, c + i * d_col))
+
+    # --- LAYER 1: VẼ CHỮ RANDOM ---
     for r_idx, row in enumerate(grid):
         for c_idx, char in enumerate(row):
             if (r_idx, c_idx) not in highlighted_cells:
@@ -37,6 +63,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
                 y = margin + (r_idx * cell_size) + (cell_size / 2)
                 draw.text((x, y), char, fill=base_text_color, font=font, anchor="mm")
 
+    # --- LAYER 2: VẼ VIỀN CAPSULE ---
     for word_obj in puzzle_obj.placed_words:
         r1, c1 = word_obj.start_row, word_obj.start_column
         d_row, d_col = word_obj.direction.value
@@ -64,6 +91,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
         draw.ellipse([x1-inner_rad, y1-inner_rad, x1+inner_rad, y1+inner_rad], fill=(255,255,255,0))
         draw.ellipse([x2-inner_rad, y2-inner_rad, x2+inner_rad, y2+inner_rad], fill=(255,255,255,0))
 
+    # --- LAYER 3: VẼ CHỮ TRONG TÊN ---
     for r_idx, row in enumerate(grid):
         for c_idx, char in enumerate(row):
             if (r_idx, c_idx) in highlighted_cells:
@@ -75,18 +103,18 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     img.save(buf, format="PNG", dpi=(300, 300))
     return buf.getvalue()
 
-# --- Giao dien Streamlit ---
+# --- Giao diện chính ---
 st.title("Word Name Generate")
 
 with st.sidebar:
+    st.header("Cấu hình")
     c_h = st.color_picker("Highlight Color", "#FF69B4")
     c_b = st.color_picker("Base Text Color", "#222222")
-    txt = st.text_area("Names", "")
+    txt = st.text_area("Name:", "")
 
 if txt:
     names = [n.strip().upper() for n in txt.split(",") if n.strip()]
     if names:
-        # Thuat toan tinh size de chu to nhat
         total_chars = sum(len(n) for n in names)
         density_size = math.ceil(math.sqrt(total_chars * 1.3))
         final_grid_size = max(density_size, max(len(n) for n in names))
@@ -95,9 +123,9 @@ if txt:
             puzzle = WordSearch(",".join(names), size=final_grid_size)
             img_bytes = create_layered_design(puzzle, c_h, c_b)
             st.image(img_bytes, use_container_width=True)
-            st.download_button("Download (300DPI)", img_bytes, "final_layered_design.png", "image/png")
+            st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
         except:
             puzzle = WordSearch(",".join(names), size=final_grid_size + 1)
             img_bytes = create_layered_design(puzzle, c_h, c_b)
             st.image(img_bytes, use_container_width=True)
-            st.download_button("Download (300DPI)", img_bytes, "final_layered_design.png", "image/png")
+            st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
