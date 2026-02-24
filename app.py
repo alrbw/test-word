@@ -6,7 +6,7 @@ import math
 import os
 
 # 1. Cấu hình trang và Ép giao diện Light Theme toàn diện
-st.set_page_config(page_title="Word Name Generate", layout="centered")
+st.set_page_config(page_title="DZT-Word Name", layout="centered")
 
 st.markdown("""
     <style>
@@ -165,4 +165,5 @@ if submit_button and txt:
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
 elif not txt:
     st.info("Vui lòng nhập tên và nhấn 'Generate Design'.")
+
 
