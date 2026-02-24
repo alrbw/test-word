@@ -44,7 +44,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     cell_size = usable_size / grid_size
     
     try:
-        font = ImageFont.truetype("arialbd.ttf", int(cell_size * 0.65))
+        font = ImageFont.truetype("ARLRDBD.ttf", int(cell_size * 0.65))
     except:
         font = ImageFont.load_default()
 
@@ -129,3 +129,4 @@ if txt:
             img_bytes = create_layered_design(puzzle, c_h, c_b)
             st.image(img_bytes, use_container_width=True)
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
+
