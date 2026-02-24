@@ -6,7 +6,7 @@ import math
 import os
 
 # 1. Cấu hình trang và Ép giao diện Light Theme toàn diện
-st.set_page_config(page_title="DZT-Word Name", layout="centered")
+st.set_page_config(page_title="AL-DZT-Word-Name", layout="centered")
 
 st.markdown("""
     <style>
@@ -136,7 +136,7 @@ def create_layered_design(puzzle_obj, main_color, base_text_color, size_px=3000)
     img.save(buf, format="PNG", dpi=(300, 300))
     return buf.getvalue()
 
-st.title("Word Name Generate")
+st.title("AL-DZT-Word Name")
 
 with st.sidebar:
     st.header("Settings")
@@ -164,6 +164,7 @@ if submit_button and txt:
             st.image(img_bytes, use_container_width=True)
             st.download_button("Download Image (300DPI)", img_bytes, "crossword_design.png", "image/png")
 elif not txt:
-    st.info("Vui lòng nhập tên và nhấn 'Generate Design'.")
+    st.info("Nhập tên (cách nhau bằng dấu phẩy) và nhấn 'Generate Design'.")
+
 
 
